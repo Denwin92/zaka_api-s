@@ -22,16 +22,6 @@ public class AccountController {
     @Autowired
     private AccountService accountService;
 
-    @PutMapping("/{accountNumber}/add-money")
-    public ResponseEntity<Map<String, Object>> addMoney(@PathVariable Integer accountNumber, @RequestBody Map<String, String> body) {
-       Integer amount = Integer.parseInt(body.get("amount").toString());
-       if(accountService.updateBalance(accountNumber, amount)){
-            return ResponseEntity.ok(ApiRespone.getResponse(0, "Money added successfully", null));
-       }else{
-        return ResponseEntity.ok(ApiRespone.getResponse(1, "Unable to add money", null));
-       }
-    }
-
     @PostMapping("/login")
 public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> body) {
     String username = body.get("username");
@@ -43,13 +33,13 @@ public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String
     } else if (isPhoneNumber(username)) {
         account = accountService.getAccountByCellNumberPassword(username, hashPasswordMD5(password));
     } else {
-        return ResponseEntity.badRequest().body(ApiRespone.getResponse(0, "Invalid username format", null));
+        return ResponseEntity.badRequest().body(ApiRespone.getResponse(1, "Invalid username format.", null));
     }
 
     if (account.isPresent()) {
         return ResponseEntity.ok(ApiRespone.getResponse(0, "Account found", Map.of("account", account)));
     } else {
-        return ResponseEntity.status(404).body(ApiRespone.getResponse(0, "Account not found", null));
+        return ResponseEntity.status(404).body(ApiRespone.getResponse(1, "Account not found.", null));
     }
 }
 
@@ -65,8 +55,15 @@ private boolean isPhoneNumber(String input) {
 
     @PostMapping("/create-account")
     public ResponseEntity<Map<String, Object>> createAccount(@RequestBody Map<String, String> body) {
+        String email = body.get("email").toString();
+        String cellPhone = body.get("cell_number").toString();
+
+        if(accountService.checkAccountExists(cellPhone, email)){
+            return ResponseEntity.status(400).body(ApiRespone.getResponse(1, "Account already exists.", null));
+        }
+
         Account account = new Account();
-        account.setCellNumber(body.get("cell_number").toString());
+        account.setCellNumber(cellPhone);
         account.setCity(body.get("city").toString());
         try {
             account.setDateOfBirth(
@@ -75,7 +72,7 @@ private boolean isPhoneNumber(String input) {
     
             e.printStackTrace();
         }
-        account.setEmailAddress(body.get("email").toString());
+        account.setEmailAddress(email);
         account.setFirstName(body.get("first_name").toString());
         account.setLastName(body.get("last_name").toString());
         account.setIdNumber(body.get("id_number").toString());
@@ -88,7 +85,7 @@ private boolean isPhoneNumber(String input) {
         Account savedAccount = accountService.saveAccount(account);
 
         return ResponseEntity
-                .ok(ApiRespone.getResponse(0, "Account saved successfully", Map.of("account", savedAccount)));
+                .ok(ApiRespone.getResponse(0, "Account saved successfully.", Map.of("account", savedAccount)));
     }
 
 

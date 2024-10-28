@@ -14,15 +14,6 @@ public class AccountService {
     @Autowired
     private AccountRepository accountRepository;
 
-    public List<Account> getAllAccounts(){
-        return accountRepository.findAll();
-
-    }
-
-    public Optional<Account> getAccountByEmail(String email){
-        return accountRepository.findByEmailAddress(email);
-    }
-
     public Account saveAccount(Account account){
         return accountRepository.save(account);
     }
@@ -35,8 +26,11 @@ public class AccountService {
         return accountRepository.findByCellNumberAndPassword(cell, password);
     }
 
-    public boolean updateBalance(Integer accountNumber,Integer amount){
-        return accountRepository.updateAccountBalance(accountNumber, amount) > 0;
+    public boolean checkAccountExists(String cell, String email){
+        boolean x = accountRepository.existsByEmailAddressOrCellNumber(cell,email);
+        return x;
     }
+
+    
 
 }

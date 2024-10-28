@@ -19,18 +19,6 @@ public class TransactionController {
     @Autowired
     private TransactionService transactionService;
 
-     @GetMapping
-    public ResponseEntity<Map<String,Object>> getAllTransactions(){
-        List<Transaction> transactions = transactionService.getAllTransactions();
-        return ResponseEntity.ok(ApiRespone.getResponse(0, "Transactions", Map.of("transactions",transactions)));
-    }
-
-    @GetMapping("/{accountNumber}")
-    public ResponseEntity<Map<String,Object>> getSenderTransactions(@PathVariable String accountNumber) {
-        List<Transaction> transactions = transactionService.getSenderTransactions(accountNumber);
-        return ResponseEntity.ok(ApiRespone.getResponse(0, "Transactions history", Map.of("transactions",transactions)));
-    }
-
 
     @PostMapping("/transfer")
     public ResponseEntity<Map<String,Object>> addTransaction(@RequestBody Map<String,Object> body) {
@@ -44,7 +32,7 @@ public class TransactionController {
 
         transactionService.saveTransaction(transaction);
 
-        return ResponseEntity.ok(ApiRespone.getResponse(0, "Transfer successful", Map.of("transaction",transaction)));
+        return ResponseEntity.ok(ApiRespone.getResponse(0, "Transfer successful.", Map.of("transaction",transaction)));
     }
 
 
